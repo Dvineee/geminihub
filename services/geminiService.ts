@@ -2,7 +2,9 @@ import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
 import { Bot } from "../types.ts";
 
 export const getGeminiClient = () => {
-  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Safe access to process.env to prevent ReferenceError in browser environments
+  const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
+  return new GoogleGenAI({ apiKey: apiKey || '' });
 };
 
 export const createBotChat = (bot: Bot, history: any[] = [], modelName: string = 'gemini-3-flash-preview'): Chat => {
@@ -102,6 +104,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
 
 export const generateVideo = async (prompt: string): Promise<string> => {
   const ai = getGeminiClient();
+  const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
   let operation = await ai.models.generateVideos({
     model: 'veo-3.1-fast-generate-preview',
     prompt: prompt,
@@ -118,7 +121,7 @@ export const generateVideo = async (prompt: string): Promise<string> => {
   }
 
   const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-  const videoResp = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
+  const videoResp = await fetch(`${downloadLink}&key=${apiKey}`);
   if (!videoResp.ok) throw new Error("Video indirilemedi.");
   const blob = await videoResp.blob();
   return URL.createObjectURL(blob);

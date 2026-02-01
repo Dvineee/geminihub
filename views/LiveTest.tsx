@@ -119,10 +119,10 @@ export default function LiveTest({ bots, onOpenSidebar }: LiveTestProps) {
       try {
         setMessages(JSON.parse(savedChat).map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })));
       } catch (e) {
-        setMessages([{ id: 'init', role: 'model', text: `Engineering session initialized for ${bot?.name}.`, timestamp: new Date() }]);
+        setMessages([{ id: 'init', role: 'model', text: `Engineering session initialized for ${bot?.name || 'Assistant'}.`, timestamp: new Date() }]);
       }
     } else {
-      setMessages([{ id: 'init', role: 'model', text: `Engineering session initialized for ${bot?.name}.`, timestamp: new Date() }]);
+      setMessages([{ id: 'init', role: 'model', text: `Engineering session initialized for ${bot?.name || 'Assistant'}.`, timestamp: new Date() }]);
     }
 
     // Load Model Selection
@@ -576,7 +576,19 @@ export default function LiveTest({ bots, onOpenSidebar }: LiveTestProps) {
     );
   };
 
-  if (!bot) return null;
+  if (!bot) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-white">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 bg-zinc-50 rounded-2xl mx-auto flex items-center justify-center text-zinc-300">
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <p className="text-sm font-bold text-zinc-400">Assistant profile not found.</p>
+          <button onClick={() => navigate('/a/dashboard')} className="text-xs font-bold text-black underline underline-offset-4">Return to Dashboard</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-white overflow-hidden relative view-fade">
@@ -657,10 +669,10 @@ export default function LiveTest({ bots, onOpenSidebar }: LiveTestProps) {
           {isHeaderMenuOpen && (
             <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-zinc-100 rounded-xl shadow-xl z-[110] overflow-hidden">
               <button onClick={handlePinChat} className="w-full flex items-center gap-3 px-4 py-3 text-left text-[11px] font-bold text-zinc-600 hover:bg-zinc-50 transition-colors">
-                {headerMenuAction === 'pin' ? <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" /></svg>}Sohbeti Sabitle
+                {headerMenuAction === 'pin' ? <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" /></svg>}Sohbeti Sabitle
               </button>
               <button onClick={handleExportFullChatPDF} className="w-full flex items-center gap-3 px-4 py-3 text-left text-[11px] font-bold text-zinc-600 hover:bg-zinc-50 transition-colors">
-                {headerMenuAction === 'pdf' ? <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>}PDF İndir
+                {headerMenuAction === 'pdf' ? <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>}PDF İndir
               </button>
               <div className="h-[1px] bg-zinc-50 mx-2"></div>
               <button onClick={() => { setShowResetModal(true); setIsHeaderMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-left text-[11px] font-bold text-red-500 hover:bg-zinc-50"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>Sohbeti Sil</button>
@@ -681,7 +693,7 @@ export default function LiveTest({ bots, onOpenSidebar }: LiveTestProps) {
                   <div className="w-1 h-1 rounded-full bg-zinc-200"></div>
                   <span className="text-[9px] text-zinc-400 font-bold">{msg.timestamp.toLocaleTimeString()}</span>
                   <div className="ml-auto flex items-center gap-1">
-                    <button onClick={() => handleSaveSnippet(msg.text)} className="p-1 rounded-md transition-all opacity-0 group-hover/msg:opacity-100 text-zinc-500 hover:text-indigo-600 hover:bg-zinc-50" title="Kaydet"><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M17.593 3.322c1.1.128(1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" /></svg></button>
+                    <button onClick={() => handleSaveSnippet(msg.text)} className="p-1 rounded-md transition-all opacity-0 group-hover/msg:opacity-100 text-zinc-500 hover:text-indigo-600 hover:bg-zinc-50" title="Kaydet"><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" /></svg></button>
                     <button onClick={() => handleCopyMessage(msg.text, msg.id)} className={`p-1 rounded-md transition-all opacity-0 group-hover/msg:opacity-100 ${isCopied ? 'text-green-600' : 'text-zinc-500 hover:text-black'}`}>
                       {isCopied ? <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg> : <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>}
                     </button>
