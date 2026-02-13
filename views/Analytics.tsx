@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
@@ -19,7 +20,8 @@ const data = [
   { name: 'Paz', chats: 349, tokens: 4300 },
 ];
 
-const Analytics: React.FC<AnalyticsProps> = ({ bots, onOpenSidebar }) => {
+// Destructure all props from AnalyticsProps to ensure type compatibility with App.tsx
+const Analytics: React.FC<AnalyticsProps> = ({ bots, isSidebarOpen, onOpenSidebar }) => {
   const navigate = useNavigate();
 
   return (

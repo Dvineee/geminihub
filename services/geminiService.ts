@@ -1,45 +1,38 @@
 import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
 import { Bot } from "../types.ts";
 
+const getApiKey = () => {
+  try {
+    if (typeof process !== 'undefined' && process.env?.API_KEY) {
+      return process.env.API_KEY;
+    }
+    if (typeof window !== 'undefined' && (window as any).process?.env?.API_KEY) {
+      return (window as any).process.env.API_KEY;
+    }
+  } catch (e) {
+    console.warn("API key retrieval failed", e);
+  }
+  return '';
+};
+
 export const getGeminiClient = () => {
-  // Safe access to process.env to prevent ReferenceError in browser environments
-  const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
+  const apiKey = getApiKey();
   return new GoogleGenAI({ apiKey: apiKey || '' });
 };
 
 export const createBotChat = (bot: Bot, history: any[] = [], modelName: string = 'gemini-3-flash-preview'): Chat => {
   const ai = getGeminiClient();
   
-  const fullSystemInstruction = `
-    Senin adın ${bot.name}. Sen "Premium Engineering & Advanced Intelligence" modunda çalışan, dünya standartlarında bir yapay zeka asistanısın.
+  const fullSystemInstruction = `Senin adın ${bot.name}. Sen Premium Engineering modunda çalışan bir yapay zekasın.
     
-    UZMANLIK ALANLARIN:
-    1. YAZILIM MİMARİSİ: En güncel frameworkler, Clean Code, SOLID prensipleri ve performans optimizasyonu konusunda uzmansın.
-    2. HIZLI ANALİZ VE İŞLEM: Karmaşık verileri milisaniyeler içinde işleyip en verimli çözüm yolunu bulursun.
-    3. DERİN ARAŞTIRMA: Bilgiye en hızlı ve en doğru kaynaktan ulaşırsın.
-
-    DESTEK VE İLETİŞİM BİLGİLERİ:
-    - E-posta: ${bot.contactEmail || 'Belirtilmedi'}
-    - Web Sitesi: ${bot.website || 'Belirtilmedi'}
-    - Ek Bilgiler: ${bot.otherInfo || 'Yok'}
-
-    KRİTİK TALİMATLAR:
-    ${bot.systemInstruction}
+    UZMANLIK: Yazılım Mimarisi, Clean Code ve SOLID.
+    İLETİŞİM: ${bot.contactEmail || 'Belirtilmedi'} | ${bot.website || 'Belirtilmedi'}.
     
-    BİLGİ TABANI (RAG):
-    ${bot.knowledgeBase.map(k => `- ${k.content}`).join('\n')}
+    KRİTİK: ${bot.systemInstruction || 'Professional and technical tone.'}
     
-    PREMIUM ÇALIŞMA KURALLARI:
-    - Yanıtlerin her zaman "Senior Lead Engineer" seviyesinde teknik derinliğe sahip olmalı.
-    - Yazılım isteklerinde her zaman ölçeklenebilir ve güvenli kod üret.
-    - Her kod bloğunun en başına mutlaka şu formatta dosya adını ekle: // filename: dosyaadi.uzanti
-    - ${bot.canPreviewCode ? 'Standalone, modern UI/UX prensiplerine uygun HTML/Tailwind kodları üret and ```html blokları içine al.' : 'Kod yazma yetkin sınırlı.'}
-    - ${bot.hasSearchGrounding ? 'HIZLI ARAMA AKTİF: En güncel teknik dokümantasyonlar ve haberler için Google Search aracını agresif kullan.' : 'Sadece eğitim verine güven.'}
+    KNOWLEDGE: ${bot.knowledgeBase.map(k => k.content).join('\n')}
     
-    MEDYA YETENEKLERİ:
-    - ${bot.hasImageGen ? '[GENERATE_IMAGE: prompt] formatını kullanarak görsel üret.' : 'Görsel üretme.'}
-    - ${bot.hasVideoGen ? '[GENERATE_VIDEO: prompt] formatını kullanarak video üret.' : 'Video üretme.'}
-  `;
+    MEDYA: ${bot.hasImageGen ? '[GENERATE_IMAGE: prompt] formatını kullan.' : ''}`;
 
   const tools: any[] = [];
   if (bot.hasSearchGrounding) {
@@ -51,9 +44,9 @@ export const createBotChat = (bot: Bot, history: any[] = [], modelName: string =
     history: history,
     config: {
       systemInstruction: fullSystemInstruction,
-      temperature: bot.temperature,
-      topP: bot.topP,
-      topK: bot.topK,
+      temperature: bot.temperature || 0.7,
+      topP: bot.topP || 0.95,
+      topK: bot.topK || 40,
       tools: tools.length > 0 ? tools : undefined
     },
   });
@@ -89,9 +82,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
     model: 'gemini-2.5-flash-image',
     contents: { parts: [{ text: prompt }] },
     config: { 
-      imageConfig: { 
-        aspectRatio: "1:1"
-      } 
+      imageConfig: { aspectRatio: "1:1" } 
     }
   });
   
@@ -104,7 +95,7 @@ export const generateImage = async (prompt: string): Promise<string> => {
 
 export const generateVideo = async (prompt: string): Promise<string> => {
   const ai = getGeminiClient();
-  const apiKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : '';
+  const apiKey = getApiKey();
   let operation = await ai.models.generateVideos({
     model: 'veo-3.1-fast-generate-preview',
     prompt: prompt,
